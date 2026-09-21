@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TODO UNIFI</title>
+  <meta name="description" content="Applicazione gestione lavoro a struttura piramidale: TODO UNIFI.">
+  <meta name="theme-color" content="#1e507f">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <!-- ==================== SCHERMATA DI ACCESSO ==================== -->
+  <div id="auth-gate" class="auth-gate hidden" role="dialog" aria-modal="true" aria-labelledby="auth-title">
+    <div class="auth-card">
+      <div class="logo-icon auth-logo">
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <polygon points="12 2 2 7 12 12 22 7 12 2"></polygon>
+          <polyline points="2 17 12 22 22 17"></polyline>
+          <polyline points="2 12 12 17 22 12"></polyline>
+        </svg>
+      </div>
+      <h1 id="auth-title" class="auth-title">TODO UNIFI</h1>
+
+      <p class="auth-checking-text">Verifica accesso...</p>
+
+      <form id="form-auth" class="auth-form">
+        <p class="auth-subtitle">Inserisci la password per accedere alla tua lista.</p>
+        <label class="auth-label" for="auth-password">Password</label>
+        <input type="password" id="auth-password" class="form-input" autocomplete="current-password" required>
+        <div id="auth-error" class="auth-error hidden" role="alert"></div>
+        <button type="submit" id="auth-submit" class="btn btn-primary auth-submit">Entra</button>
+        <p class="auth-note">L'accesso viene ricordato su questo dispositivo.</p>
+      </form>
+    </div>
+  </div>
+
+  <div id="app" class="app-container">
+    <!-- Header App -->
+    <header class="main-header">
+      <div class="brand-container">
+        <div class="logo-icon">
+          <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <polygon points="12 2 2 7 12 12 22 7 12 2"></polygon>
+            <polyline points="2 17 12 22 22 17"></polyline>
+            <polyline points="2 12 12 17 22 12"></polyline>
+          </svg>
+        </div>
+        <div>
+          <h1 class="brand-title">TODO UNIFI</h1>
+        </div>
+      </div>
+
+      <div class="header-actions">
+        <!-- Indicatore di sincronizzazione -->
+        <div id="sync-status-badge" class="sync-badge sync-local" title="Stato sincronizzazione">
+          <span class="sync-dot"></span>
+          <span id="sync-status-text">Solo locale</span>
+        </div>
+
+        <button id="btn-cloud-sync" type="button" class="btn btn-secondary btn-icon-text" title="Impostazioni di sincronizzazione">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+            <path d="M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9Z"></path>
+          </svg>
+          <span>Cloud Sync</span>
+        </button>
+
+        <button id="btn-export-import" type="button" class="btn btn-secondary btn-icon-text" title="Backup e ripristino dati">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+            <polyline points="17 8 12 3 7 8"></polyline>
+            <line x1="12" y1="3" x2="12" y2="15"></line>
+          </svg>
+          <span>Dati</span>
+        </button>
+
+        <button id="btn-add-project" type="button" class="btn btn-primary btn-icon-text">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true">
+            <line x1="12" y1="5" x2="12" y2="19"></line>
+            <line x1="5" y1="12" x2="19" y2="12"></line>
+          </svg>
+          <span>NUOVO PROGETTO</span>
+        </button>
+      </div>
+    </header>
+
+    <!-- Griglia dei progetti -->
+    <main class="main-content">
+      <div id="projects-container" class="projects-grid">
+        <!-- Render dinamico -->
+      </div>
+
+      <!-- Stato vuoto -->
+      <div id="empty-state" class="empty-state hidden">
+        <div class="empty-icon">
+          <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
+            <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path>
+            <line x1="12" y1="11" x2="12" y2="17"></line>
+            <line x1="9" y1="14" x2="15" y2="14"></line>
+          </svg>
+        </div>
+        <h3>Nessun progetto presente</h3>
+        <p>Inizia creando il tuo primo progetto macrocategoria per organizzare attività e task.</p>
+        <button id="btn-empty-add-project" type="button" class="btn btn-primary">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true">
+            <line x1="12" y1="5" x2="12" y2="19"></line>
+            <line x1="5" y1="12" x2="19" y2="12"></line>
+          </svg>
+          <span>Crea primo progetto</span>
+        </button>
+      </div>
+    </main>
+
+    <p class="app-hint">
+      Clicca su un titolo o su una priorità per modificarli. Trascina dalla maniglia
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="9" cy="5" r="1"></circle><circle cx="9" cy="12" r="1"></circle><circle cx="9" cy="19" r="1"></circle><circle cx="15" cy="5" r="1"></circle><circle cx="15" cy="12" r="1"></circle><circle cx="15" cy="19" r="1"></circle></svg>
+      per riordinare. Le task spuntate spariscono dopo 5 secondi: togli la spunta per recuperarle.
+    </p>
+  </div>
+
+  <!-- ==================== MODALE: Nuovo progetto ==================== -->
+  <div id="modal-project" class="modal-backdrop hidden" role="dialog" aria-modal="true" aria-labelledby="modal-project-title">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3 id="modal-project-title">Nuovo progetto</h3>
+        <button type="button" class="modal-close" data-close="modal-project" aria-label="Chiudi">&times;</button>
+      </div>
+      <form id="form-project">
+        <div class="form-group">
+          <label for="project-name">Nome progetto</label>
+          <input type="text" id="project-name" class="form-input" placeholder="Es. MARKETING &amp; VENDITE" required autocomplete="off">
+        </div>
+        <div class="modal-actions">
+          <button type="button" class="btn btn-secondary" data-close="modal-project">Annulla</button>
+          <button type="submit" class="btn btn-primary">Crea progetto</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ==================== MODALE: Nuova attività ==================== -->
+  <div id="modal-activity" class="modal-backdrop hidden" role="dialog" aria-modal="true" aria-labelledby="modal-activity-title">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3 id="modal-activity-title">Nuova attività</h3>
+        <button type="button" class="modal-close" data-close="modal-activity" aria-label="Chiudi">&times;</button>
+      </div>
+      <form id="form-activity">
+        <input type="hidden" id="activity-project-id">
+        <div class="form-group">
+          <label for="activity-name">Nome attività</label>
+          <input type="text" id="activity-name" class="form-input" placeholder="Es. Campagna Social Q4" required autocomplete="off">
+        </div>
+        <div class="modal-actions">
+          <button type="button" class="btn btn-secondary" data-close="modal-activity">Annulla</button>
+          <button type="submit" class="btn btn-primary">Aggiungi attività</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ==================== MODALE: Nuova task ==================== -->
+  <div id="modal-task" class="modal-backdrop hidden" role="dialog" aria-modal="true" aria-labelledby="modal-task-title">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3 id="modal-task-title">Nuova task</h3>
+        <button type="button" class="modal-close" data-close="modal-task" aria-label="Chiudi">&times;</button>
+      </div>
+      <form id="form-task">
+        <input type="hidden" id="task-project-id">
+        <input type="hidden" id="task-activity-id">
+
+        <div class="form-group">
+          <label for="task-name">Nome task</label>
+          <input type="text" id="task-name" class="form-input" placeholder="Es. Creare grafica per post Instagram" required autocomplete="off">
+        </div>
+
+        <div class="form-group">
+          <label>Seleziona priorità</label>
+          <div class="priority-options">
+            <label class="priority-option">
+              <input type="radio" name="task-priority" value="5" checked>
+              <div class="priority-option-content">
+                <span class="priority-dot dot-extreme"></span>
+                <span class="priority-label">Estrema</span>
+              </div>
+            </label>
+
+            <label class="priority-option">
+              <input type="radio" name="task-priority" value="4">
+              <div class="priority-option-content">
+                <span class="priority-dot dot-high"></span>
+                <span class="priority-label">Alta</span>
+              </div>
+            </label>
+
+            <label class="priority-option">
+              <input type="radio" name="task-priority" value="3">
+              <div class="priority-option-content">
+                <span class="priority-dot dot-medium"></span>
+                <span class="priority-label">Media</span>
+              </div>
+            </label>
+
+            <label class="priority-option">
+              <input type="radio" name="task-priority" value="2">
+              <div class="priority-option-content">
+                <span class="priority-dot dot-low"></span>
+                <span class="priority-label">Bassa</span>
+              </div>
+            </label>
+
+            <label class="priority-option">
+              <input type="radio" name="task-priority" value="1">
+              <div class="priority-option-content">
+                <span class="priority-dot dot-waiting"></span>
+                <span class="priority-label">In attesa</span>
+              </div>
+            </label>
+          </div>
+        </div>
+
+        <div class="modal-actions">
+          <button type="button" class="btn btn-secondary" data-close="modal-task">Annulla</button>
+          <button type="submit" class="btn btn-primary">Aggiungi task</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ==================== MODALE: Conferma eliminazione ==================== -->
+  <div id="modal-delete-confirm" class="modal-backdrop hidden" role="dialog" aria-modal="true" aria-labelledby="modal-delete-title">
+    <div class="modal-card modal-card-danger">
+      <div class="modal-header">
+        <h3 id="modal-delete-title" class="text-danger">Conferma eliminazione</h3>
+        <button type="button" class="modal-close" data-close="modal-delete-confirm" aria-label="Chiudi">&times;</button>
+      </div>
+      <div class="modal-body">
+        <p id="delete-confirm-text">Sei sicuro di voler rimuovere il progetto <strong id="delete-project-name-placeholder">"XYZ"</strong>?</p>
+        <p class="modal-warning-subtext">Questa azione elimina definitivamente il progetto e tutte le attività e task al suo interno, su tutti i dispositivi sincronizzati.</p>
+      </div>
+      <div class="modal-actions">
+        <button type="button" class="btn btn-secondary" data-close="modal-delete-confirm">Annulla</button>
+        <button type="button" id="btn-confirm-delete-project" class="btn btn-danger">Elimina progetto</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== MODALE: Cloud sync ==================== -->
+  <div id="modal-cloud" class="modal-backdrop hidden" role="dialog" aria-modal="true" aria-labelledby="modal-cloud-title">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3 id="modal-cloud-title">Sincronizzazione in tempo reale</h3>
+        <button type="button" class="modal-close" data-close="modal-cloud" aria-label="Chiudi">&times;</button>
+      </div>
+      <div class="modal-body">
+        <p class="help-text">
+          Ogni modifica compare all'istante su tutti i dispositivi che hanno la pagina aperta.
+          Questi valori sono già compilati in <code>app.js</code>: la procedura completa è nel
+          file <code>README.md</code>. Nessuno di essi è segreto — a proteggere i dati sono la
+          password e le regole del database.
+        </p>
+
+        <div id="cloud-status-line" class="cloud-status cloud-status-local">Stato attuale: solo locale</div>
+
+        <div class="form-group">
+          <label for="firebase-api-key">apiKey</label>
+          <input type="text" id="firebase-api-key" class="form-input" placeholder="AIza..." autocomplete="off" spellcheck="false">
+        </div>
+
+        <div class="form-group">
+          <label for="firebase-auth-domain">authDomain</label>
+          <input type="text" id="firebase-auth-domain" class="form-input" placeholder="tuo-progetto.firebaseapp.com" autocomplete="off" spellcheck="false">
+        </div>
+
+        <div class="form-group">
+          <label for="firebase-db-url">URL del Realtime Database</label>
+          <input type="url" id="firebase-db-url" class="form-input" placeholder="https://tuo-progetto-default-rtdb.europe-west1.firebasedatabase.app" autocomplete="off" spellcheck="false">
+          <span class="field-hint">Lascia vuoto per lavorare solo su questo dispositivo, senza accesso.</span>
+        </div>
+
+        <div class="form-group">
+          <label for="firebase-workspace">Nome del workspace</label>
+          <input type="text" id="firebase-workspace" class="form-input" placeholder="workspace-unifi" autocomplete="off" spellcheck="false">
+          <span class="field-hint">Deve essere identico su tutti i dispositivi e nelle regole di sicurezza del database.</span>
+        </div>
+
+        <div class="form-group">
+          <label for="firebase-auth-email">Identificativo utenza</label>
+          <input type="text" id="firebase-auth-email" class="form-input" placeholder="todo-unifi@todo-unifi.app" autocomplete="off" spellcheck="false">
+          <span class="field-hint">Non è una casella di posta: serve solo perché Firebase pretende un'email. Deve coincidere con l'utente creato in Authentication.</span>
+        </div>
+      </div>
+      <div class="modal-actions">
+        <button type="button" id="btn-logout" class="btn btn-secondary hidden">Esci</button>
+        <button type="button" id="btn-disconnect-cloud" class="btn btn-secondary">Disconnetti</button>
+        <button type="button" class="btn btn-secondary" data-close="modal-cloud">Chiudi</button>
+        <button type="button" id="btn-save-cloud-config" class="btn btn-primary">Salva e connetti</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== MODALE: Dati ==================== -->
+  <div id="modal-data" class="modal-backdrop hidden" role="dialog" aria-modal="true" aria-labelledby="modal-data-title">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3 id="modal-data-title">Gestione dati e backup</h3>
+        <button type="button" class="modal-close" data-close="modal-data" aria-label="Chiudi">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="data-action-box">
+          <h4>Esporta dati</h4>
+          <p>Scarica un file JSON con tutti i progetti, le attività e le task.</p>
+          <button type="button" id="btn-download-json" class="btn btn-secondary">Scarica backup (.json)</button>
+        </div>
+
+        <hr class="divider">
+
+        <div class="data-action-box">
+          <h4>Importa dati</h4>
+          <p>Ripristina i progetti da un file JSON salvato in precedenza. Sostituisce tutti i dati attuali, anche sul cloud.</p>
+          <input type="file" id="import-json-file" accept=".json,application/json" class="hidden">
+          <button type="button" id="btn-trigger-import-file" class="btn btn-secondary">Seleziona file JSON</button>
+        </div>
+      </div>
+      <div class="modal-actions">
+        <button type="button" class="btn btn-secondary" data-close="modal-data">Chiudi</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="toast-container" class="toast-container" aria-live="polite"></div>
+
+  <script src="app.js"></script>
+</body>
+</html>
