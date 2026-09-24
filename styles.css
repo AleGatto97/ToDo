@@ -79,10 +79,17 @@ body.dragging-active {
 ::-webkit-scrollbar-thumb { background: rgba(30, 80, 127, 0.25); border-radius: 4px; }
 ::-webkit-scrollbar-thumb:hover { background: rgba(30, 80, 127, 0.45); }
 
+/* I calc() con env() servono quando l'app e installata sulla schermata Home:
+   tengono i contenuti fuori dal notch e dalla barra gesti dell'iPhone.
+   Su desktop e nei browser normali env() vale 0, quindi non cambia nulla. */
 .app-container {
   max-width: 1480px;
   margin: 0 auto;
-  padding: 32px 24px;
+  padding:
+    calc(32px + env(safe-area-inset-top))
+    calc(24px + env(safe-area-inset-right))
+    calc(32px + env(safe-area-inset-bottom))
+    calc(24px + env(safe-area-inset-left));
   display: flex;
   flex-direction: column;
   gap: 28px;
@@ -1080,8 +1087,8 @@ body.dragging-active {
    ========================================================================== */
 .toast-container {
   position: fixed;
-  bottom: 22px;
-  right: 22px;
+  bottom: calc(22px + env(safe-area-inset-bottom));
+  right: calc(22px + env(safe-area-inset-right));
   z-index: 1500;
   display: flex;
   flex-direction: column;
@@ -1128,7 +1135,11 @@ body.dragging-active {
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 24px;
+  padding:
+    calc(24px + env(safe-area-inset-top))
+    calc(24px + env(safe-area-inset-right))
+    calc(24px + env(safe-area-inset-bottom))
+    calc(24px + env(safe-area-inset-left));
   background: var(--bg-gradient);
   background-attachment: fixed;
 }
@@ -1257,7 +1268,11 @@ body.dragging-active {
 
 @media (max-width: 640px) {
   .app-container {
-    padding: 18px 14px;
+    padding:
+      calc(18px + env(safe-area-inset-top))
+      calc(14px + env(safe-area-inset-right))
+      calc(18px + env(safe-area-inset-bottom))
+      calc(14px + env(safe-area-inset-left));
     gap: 20px;
   }
   .projects-grid { gap: 20px; }
@@ -1266,7 +1281,12 @@ body.dragging-active {
   .sync-badge { font-size: 0.76rem; padding: 7px 12px; }
   .project-card.drop-before::before { left: -11px; }
   .project-card.drop-after::after { right: -11px; }
-  .toast-container { right: 14px; left: 14px; bottom: 14px; align-items: stretch; }
+  .toast-container {
+    right: calc(14px + env(safe-area-inset-right));
+    left: calc(14px + env(safe-area-inset-left));
+    bottom: calc(14px + env(safe-area-inset-bottom));
+    align-items: stretch;
+  }
   .toast { max-width: none; }
 }
 

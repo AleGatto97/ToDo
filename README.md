@@ -9,8 +9,8 @@ Progetto (macrocategoria)
        |- Task
 ```
 
-Tre file statici, nessuna build, nessuna dipendenza da installare: si pubblica su GitHub Pages
-così com'è.
+File statici, nessuna build, nessuna dipendenza da installare: si pubblica su GitHub Pages
+così com'è, e da lì si installa come app su iPhone, Mac e Android.
 
 ---
 
@@ -86,17 +86,26 @@ Il database è già creato. Restano tre cose da fare nella console, una volta so
      "rules": {
        "workspaces": {
          "gatto-n51m791ngms786j3sfn8": {
-           ".read": "auth != null",
-           ".write": "auth != null"
+           ".read": "auth != null && auth.uid === 'IL-TUO-UID'",
+           ".write": "auth != null && auth.uid === 'IL-TUO-UID'"
          }
        }
      }
    }
    ```
 
-   > Questa è la riga che conta davvero. Senza accesso, il database rifiuta lettura e
-   > scrittura, e non importa più chi conosca URL, apiKey o nome del workspace.
-   > Se cambi `workspaceKey` in `app.js`, cambialo anche qui.
+   Sostituisci `IL-TUO-UID` con l'identificativo che trovi in **Authentication -> Users**,
+   nella colonna "Identificativo utente" della riga `todo-unifi@todo-unifi.app`.
+
+   > **Perché il UID e non il più semplice `auth != null`.** Con `auth != null` basta
+   > *un* utente qualsiasi del progetto. Ma l'apiKey è pubblica e il metodo
+   > Email/Password è attivo: chiunque può chiamare l'endpoint di registrazione di
+   > Firebase e crearsi un account nel tuo progetto, ritrovandosi autenticato e quindi
+   > dentro i tuoi dati. Indicando il UID, l'unico account che il database accetta è
+   > il tuo, e gli eventuali account creati da altri non servono a niente.
+   >
+   > Se cambi `workspaceKey` in `app.js`, cambialo anche qui. Se ricrei l'utente
+   > (es. password dimenticata), il UID cambia: aggiorna le regole.
 
 **Fatto.** Apri la pagina: compare la schermata con il campo password. Entri una volta
 per dispositivo e resti dentro, anche riavviando il browser. Per uscire da un
@@ -116,6 +125,23 @@ pulsante **Cloud Sync** su ogni dispositivo.
 | **Offline** | Rete assente: le modifiche partono appena torna. |
 | **Errore sync** | Configurazione incompleta o regole che rifiutano. Passaci sopra col mouse per il dettaglio. |
 
+### L'avviso di GitHub sulla "Google API Key"
+
+Appena carichi il codice, GitHub ti manda una mail: *"Possible valid secrets detected -
+Google API Key"*. **Non è un problema.** Il rilevatore di GitHub segnala qualunque chiave
+Google, senza distinguere i casi.
+
+La documentazione Firebase è esplicita: le chiavi API dei servizi Firebase sono pensate
+per stare nel codice, identificano il progetto e **non controllano l'accesso ai dati**.
+Quello lo fanno le regole di sicurezza. Non c'è niente da revocare o rigenerare.
+
+Puoi chiudere l'avviso dalla scheda **Security** del repository, indicando che
+l'esposizione è intenzionale.
+
+L'unica raccomandazione di Google che vale la pena seguire, se un domani attiverai altri
+servizi Google sullo stesso progetto: nella Google Cloud Console, limita la chiave alle
+sole API di Firebase. Con il solo Realtime Database e l'autenticazione non è necessario.
+
 ### Sicurezza
 
 Con l'accesso attivo, il repository può restare pubblico senza problemi: `apiKey`,
@@ -131,6 +157,42 @@ Regole d'oro:
   aveva la vecchia è fuori. Questo e il vantaggio vero rispetto alla protezione con un
   percorso segreto: la revoca è immediata e non tocca né il codice né gli altri dispositivi.
 - Il backup JSON dalla finestra **Dati** resta la rete di sicurezza contro gli errori tuoi.
+
+---
+
+## Installarla come app
+
+L'app è una PWA: si installa dalla pagina web, senza App Store e senza account sviluppatore.
+Serve che sia aperta da **GitHub Pages** (https), non dal file locale.
+
+**iPhone e iPad.** Apri la pagina in **Safari** (non Chrome: su iOS solo Safari può
+installare), tocca il pulsante **Condividi** e poi **Aggiungi a schermata Home**. Comparirà
+l'icona blu con il nome "ToDo".
+
+> Se avevi già un vecchio segnalibro sulla Home, **eliminalo e rifallo**: quello vecchio è
+> stato salvato prima che esistessero l'icona e il manifest, e resta com'era.
+
+**Mac.** In Safari: menu **File -> Aggiungi al Dock**. In Chrome: icona di installazione
+nella barra degli indirizzi. L'app compare nel Launchpad e in Cmd-Tab come le altre.
+
+**Android.** Chrome propone da solo "Installa app", oppure menu -> Installa.
+
+Cosa cambia rispetto al segnalibro: icona e nome propri, nessuna barra del browser,
+schermata di avvio, e soprattutto **si apre anche senza rete** — vedi i tuoi progetti
+dall'ultima volta, li modifichi, e appena torni online tutto si sincronizza.
+
+### Aggiornamenti
+
+Il service worker usa la strategia "prima la rete": quando carichi una versione nuova su
+GitHub, al primo avvio online l'app la scarica e la usa. Non resti mai con la versione
+vecchia. Se cambi molto e vuoi essere certo di aver buttato la cache, alza il numero in
+`sw.js` alla riga `const CACHE = 'todo-unifi-v1'`.
+
+### Un limite di iOS da conoscere
+
+Se non apri l'app per diverse settimane, iOS può cancellare i dati che tiene in locale.
+I progetti non si perdono, perché stanno su Firebase e vengono riscaricati. Può però
+sparire la sessione di accesso: in quel caso ti richiederà la password. Non è un guasto.
 
 ---
 
@@ -177,7 +239,10 @@ automatico al primo avvio.
 |---|---|
 | `index.html` | Struttura della pagina e modali |
 | `styles.css` | Design system completo |
-| `app.js` | Logica, sincronizzazione, drag & drop, editing inline |
+| `app.js` | Logica, sincronizzazione, accesso, drag & drop, editing inline |
+| `manifest.json` | Scheda d'identità dell'app installata (nome, icone, colori) |
+| `sw.js` | Service worker: apertura senza rete e aggiornamenti |
+| `icon-*.png`, `apple-touch-icon.png` | Icone dell'app installata |
 
 ## Compatibilità
 

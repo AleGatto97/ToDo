@@ -1907,11 +1907,27 @@ const FIREBASE_SDK_VERSIONS = ['12.19.0', '11.10.0', '10.14.1'];
     initCloud();
   }
 
+  /**
+   * Registra il service worker: e cio che rende l'app installabile e capace
+   * di aprirsi senza rete. Richiede https (GitHub Pages lo e), quindi aprendo
+   * il file in locale con doppio clic non si attiva: non e un errore.
+   */
+  function registraServiceWorker() {
+    if (!('serviceWorker' in navigator)) return;
+    // isSecureContext copre https, localhost e 127.0.0.1, ed esclude file://
+    if (!window.isSecureContext) return;
+    navigator.serviceWorker.register('sw.js').catch((e) => {
+      console.warn('Service worker non registrato', e);
+    });
+  }
+
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', init);
   } else {
     init();
   }
+
+  window.addEventListener('load', registraServiceWorker);
 
   // Esposto per i test automatici.
   window.__todoDebug = {
