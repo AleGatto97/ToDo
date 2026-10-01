@@ -20,12 +20,23 @@ così com'è, e da lì si installa come app su iPhone, Mac e Android.
 |---|---|
 | Rinominare un progetto, un'attività o una task | Clicca sul testo, scrivi, premi **Invio**. **Esc** annulla. |
 | Cambiare priorità a una task | Clicca sull'etichetta della priorità e scegli dal menu. |
+| Cambiare colore a un progetto | Clicca il pallino colorato nell'intestazione della scheda e scegli fra otto tinte. |
 | Riordinare progetti e attività | Trascina dalla **maniglia a puntini**. Funziona anche col dito su telefono e tablet. |
 | Recuperare una task spuntata per sbaglio | Togli la spunta entro 5 secondi: la barra rossa è il countdown. |
 | Backup | Pulsante **Dati** -> Scarica backup / Importa. |
 
 Le task sono sempre ordinate per priorità decrescente. Un'attività può essere riordinata
 solo dentro il proprio progetto.
+
+Ogni task è tinta del colore della propria priorità (viola estrema, rosso alta, ambra media,
+verde bassa, grigio in attesa), così il livello si riconosce con un'occhiata senza leggere
+l'etichetta. La velatura è al 12%: abbastanza da distinguere i livelli da lontano, abbastanza
+leggera da non intaccare la leggibilità del testo. Una task spuntata perde la tinta e diventa
+grigia, perché deve leggersi come "fatta" e non come "ancora urgente".
+
+Il colore di un progetto è salvato nei dati come nome ('verde'), non come codice colore: così
+la tavolozza si può ritoccare in futuro senza toccare i progetti già creati. I nuovi progetti
+ricevono in automatico il colore meno usato, per non ritrovarsi tutte le schede uguali.
 
 ---
 
@@ -219,7 +230,7 @@ workspaces/<workspaceKey>/
   updatedAt: <timestamp>
   projects/
     <projectId>/
-      id, name, order
+      id, name, color, order
       tasks/<taskId>/       -> id, name, priority (1-5), completed, createdAt
       activities/<activityId>/
         id, name, order
@@ -242,7 +253,9 @@ automatico al primo avvio.
 | `app.js` | Logica, sincronizzazione, accesso, drag & drop, editing inline |
 | `manifest.json` | Scheda d'identità dell'app installata (nome, icone, colori) |
 | `sw.js` | Service worker: apertura senza rete e aggiornamenti |
-| `icon-*.png`, `apple-touch-icon.png` | Icone dell'app installata |
+| `icon-*.png`, `apple-touch-icon.png` | Icone dell'app installata (sigillo bianco su fondo blu) |
+| `logo-unifi-blu.png` | Sigillo in blu, per l'intestazione e la schermata di accesso |
+| `logo-unifi.png` | Sigillo in bianco, per i fondi scuri |
 
 ## Compatibilità
 

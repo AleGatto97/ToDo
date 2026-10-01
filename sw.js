@@ -12,7 +12,7 @@
  * il classico "ho aggiornato ma non cambia niente".
  */
 
-const CACHE = 'todo-unifi-v1';
+const CACHE = 'todo-unifi-v3';
 
 const FILE_BASE = [
   './',
@@ -22,7 +22,9 @@ const FILE_BASE = [
   './manifest.json',
   './icon-192.png',
   './icon-512.png',
-  './apple-touch-icon.png'
+  './apple-touch-icon.png',
+  './logo-unifi.png',
+  './logo-unifi-blu.png'
 ];
 
 self.addEventListener('install', (event) => {
@@ -55,8 +57,17 @@ self.addEventListener('fetch', (event) => {
   // mettiamo in cache, altrimenti rischieremmo di servire dati vecchi.
   if (url.origin !== self.location.origin) return;
 
+  /*
+   * cache: 'no-cache' obbliga il browser a ricontrollare il file col server
+   * invece di riusare quello che ha gia in memoria. Serve perche GitHub Pages
+   * dice ai browser "tieniti questo file per 10 minuti": senza questa riga,
+   * dopo aver pubblicato una modifica si continuerebbe a vedere la versione
+   * vecchia per un quarto d'ora buono, pur essendo online. Non scarica tutto
+   * ogni volta: se il file non e cambiato il server risponde "uguale a prima"
+   * e non ritrasmette niente.
+   */
   event.respondWith(
-    fetch(req)
+    fetch(req.url, { cache: 'no-cache', credentials: 'same-origin' })
       .then((res) => {
         if (res && res.ok) {
           const copia = res.clone();

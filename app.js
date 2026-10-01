@@ -1116,7 +1116,7 @@ const FIREBASE_SDK_VERSIONS = ['12.19.0', '11.10.0', '10.14.1'];
     badge.type = 'button';
     badge.className = 'task-badge-priority editable';
     badge.title = 'Clicca per cambiare priorità';
-    badge.innerHTML = '<span class="priority-dot ' + meta.class + '"></span><span>' + meta.name + '</span>';
+    badge.textContent = meta.name;
     badge.addEventListener('click', () =>
       startPriorityEdit(badge, task, (v) => setTaskPriority(projectId, activityId, task.id, v))
     );
