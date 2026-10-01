@@ -948,15 +948,10 @@ const FIREBASE_SDK_VERSIONS = ['12.19.0', '11.10.0', '10.14.1'];
       const box = document.createElement('div');
       box.className = 'project-direct-tasks';
 
-      const subheading = document.createElement('div');
-      subheading.className = 'section-subheading';
-      subheading.textContent = 'TASK DIRETTE PROGETTO';
-
       const list = document.createElement('div');
       list.className = 'tasks-container';
       directTasks.forEach((task) => list.appendChild(buildTask(project.id, null, task)));
 
-      box.appendChild(subheading);
       box.appendChild(list);
       card.appendChild(box);
     }

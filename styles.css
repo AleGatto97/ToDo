@@ -612,7 +612,6 @@ body.dragging-active {
   padding: 14px;
   display: flex;
   flex-direction: column;
-  gap: 10px;
 }
 
 .section-subheading {
