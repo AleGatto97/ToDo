@@ -908,13 +908,6 @@ const FIREBASE_SDK_VERSIONS = ['12.19.0', '11.10.0', '10.14.1'];
     const actions = document.createElement('div');
     actions.className = 'project-actions';
 
-    const addTaskBtn = document.createElement('button');
-    addTaskBtn.type = 'button';
-    addTaskBtn.className = 'btn-add-task';
-    addTaskBtn.title = 'Aggiungi una task direttamente al progetto';
-    addTaskBtn.innerHTML = icon(ICONS.plus, 14, 2.5) + '<span>Task</span>';
-    addTaskBtn.addEventListener('click', () => openAddTaskModal(project.id, null));
-
     const colorBtn = document.createElement('button');
     colorBtn.type = 'button';
     colorBtn.className = 'btn-icon btn-color';
@@ -934,7 +927,6 @@ const FIREBASE_SDK_VERSIONS = ['12.19.0', '11.10.0', '10.14.1'];
     deleteBtn.innerHTML = icon(ICONS.trash, 18);
     deleteBtn.addEventListener('click', () => openDeleteProjectModal(project.id, project.name));
 
-    actions.appendChild(addTaskBtn);
     actions.appendChild(colorBtn);
     actions.appendChild(deleteBtn);
 

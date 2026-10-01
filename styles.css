@@ -359,19 +359,20 @@ body.dragging-active {
   margin-left: auto;
 }
 
+/* Nudi: niente riquadro ne ombra. L'icona poggia sul fondo della scheda e
+   mostra un alone colorato solo quando ci passi sopra. */
 .btn-icon {
-  background: #ffffff;
-  border: 1px solid var(--border-color);
+  background: transparent;
+  border: none;
   color: var(--text-muted);
   width: 36px;
   height: 36px;
-  border-radius: var(--radius-sm);
+  border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  transition: all 0.2s ease;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02);
+  transition: background 0.2s ease, color 0.2s ease;
   flex-shrink: 0;
 }
 
@@ -381,15 +382,13 @@ body.dragging-active {
 }
 
 .btn-icon:hover {
-  background: var(--primary-light);
-  color: var(--primary-deep);
-  border-color: var(--primary-deep);
+  background: rgba(var(--accent-rgb), 0.16);
+  color: var(--accent);
 }
 
 .btn-icon-danger:hover {
-  background: rgba(225, 29, 72, 0.08);
+  background: rgba(225, 29, 72, 0.12);
   color: var(--danger-color);
-  border-color: rgba(225, 29, 72, 0.3);
 }
 
 /* ==========================================================================
@@ -399,21 +398,18 @@ body.dragging-active {
   position: relative;
 }
 
-.btn-color {
-  border-color: rgba(var(--accent-rgb), 0.3);
-}
-
 .btn-color:hover {
-  background: rgba(var(--accent-rgb), 0.1);
-  border-color: var(--accent);
+  background: rgba(var(--accent-rgb), 0.16);
 }
 
+/* Senza riquadro intorno, il pallino e tutto il pulsante: un filo piu grande
+   e con un contorno sottile che lo stacca dal fondo colorato della scheda. */
 .color-dot {
-  width: 16px;
-  height: 16px;
+  width: 19px;
+  height: 19px;
   border-radius: 50%;
   background: var(--accent);
-  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.9), 0 0 0 3px rgba(var(--accent-rgb), 0.35);
+  box-shadow: 0 0 0 1px rgba(15, 23, 42, 0.2);
   display: block;
 }
 
