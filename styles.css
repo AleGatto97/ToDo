@@ -279,42 +279,58 @@ body.dragging-active {
   align-items: start;
 }
 
+/* --accent e --accent-rgb li scrive il JS sulla singola scheda, in base al
+   colore scelto per quel progetto. I valori qui sotto sono solo la riserva
+   per il caso in cui manchino. La striscia colorata in alto e disegnata con
+   un'ombra interna invece che con un bordo o uno pseudo-elemento: il bordo
+   sposterebbe il contenuto, e ::before e gia impegnato dall'indicatore di
+   trascinamento. */
 .project-card {
+  --accent: var(--primary-deep);
+  --accent-rgb: 30, 80, 127;
+
   position: relative;
-  background: var(--bg-card);
+  background-color: var(--bg-card);
+  background-image: linear-gradient(
+    to bottom,
+    rgba(var(--accent-rgb), 0.07),
+    rgba(var(--accent-rgb), 0.015) 160px
+  );
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
-  border: 1px solid var(--border-color);
+  border: 1px solid rgba(var(--accent-rgb), 0.22);
   border-radius: var(--radius-lg);
-  padding: 24px;
-  box-shadow: var(--shadow-card);
+  padding: 26px 24px 24px;
+  box-shadow: inset 0 5px 0 0 var(--accent), var(--shadow-card);
   display: flex;
   flex-direction: column;
   gap: 20px;
-  transition: box-shadow 0.25s ease, border-color 0.25s ease, background 0.25s ease;
+  transition: box-shadow 0.25s ease, border-color 0.25s ease;
 }
 
 .project-card:hover {
-  background: var(--bg-card-hover);
-  border-color: rgba(30, 80, 127, 0.25);
-  box-shadow: 0 16px 36px -8px rgba(30, 80, 127, 0.12);
+  border-color: rgba(var(--accent-rgb), 0.4);
+  box-shadow:
+    inset 0 5px 0 0 var(--accent),
+    0 16px 36px -8px rgba(var(--accent-rgb), 0.22);
 }
 
 .project-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  flex-wrap: wrap;
   gap: 12px;
+  row-gap: 12px;
   padding-bottom: 14px;
-  border-bottom: 2px solid var(--primary-light);
+  border-bottom: 2px solid rgba(var(--accent-rgb), 0.22);
 }
 
 .project-title-group {
   display: flex;
   align-items: center;
   gap: 10px;
-  flex: 1;
-  min-width: 0;
+  flex: 1 1 auto;
 }
 
 .project-title {
@@ -323,9 +339,10 @@ body.dragging-active {
   font-weight: 800;
   text-transform: uppercase;
   letter-spacing: 0.04em;
-  color: var(--primary-deep);
-  word-break: break-word;
-  min-width: 0;
+  color: var(--accent);
+  /* overflow-wrap invece di word-break: spezza una parola solo se da sola non
+     ci sta, senza ridurre la larghezza minima richiesta dal titolo. */
+  overflow-wrap: break-word;
 }
 
 .project-actions {
@@ -333,6 +350,7 @@ body.dragging-active {
   align-items: center;
   gap: 8px;
   flex-shrink: 0;
+  margin-left: auto;
 }
 
 .btn-icon {
@@ -366,6 +384,72 @@ body.dragging-active {
   background: rgba(225, 29, 72, 0.08);
   color: var(--danger-color);
   border-color: rgba(225, 29, 72, 0.3);
+}
+
+/* ==========================================================================
+   SCELTA DEL COLORE DEL PROGETTO
+   ========================================================================== */
+.project-actions {
+  position: relative;
+}
+
+.btn-color {
+  border-color: rgba(var(--accent-rgb), 0.3);
+}
+
+.btn-color:hover {
+  background: rgba(var(--accent-rgb), 0.1);
+  border-color: var(--accent);
+}
+
+.color-dot {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: var(--accent);
+  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.9), 0 0 0 3px rgba(var(--accent-rgb), 0.35);
+  display: block;
+}
+
+.color-popover {
+  position: absolute;
+  top: calc(100% + 10px);
+  right: 0;
+  z-index: 50;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+  padding: 12px;
+  background: #ffffff;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  box-shadow: 0 16px 36px -8px rgba(15, 23, 42, 0.28);
+  animation: scaleUp 0.15s ease;
+}
+
+.color-swatch {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  border: 2px solid #ffffff;
+  box-shadow: 0 0 0 1px rgba(15, 23, 42, 0.15);
+  cursor: pointer;
+  padding: 0;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.color-swatch:hover {
+  transform: scale(1.14);
+  box-shadow: 0 0 0 2px rgba(15, 23, 42, 0.3);
+}
+
+.color-swatch.is-current {
+  box-shadow: 0 0 0 2px var(--text-dark);
+}
+
+.color-swatch:focus-visible {
+  outline: 2px solid var(--text-dark);
+  outline-offset: 2px;
 }
 
 /* ==========================================================================
@@ -484,7 +568,7 @@ body.dragging-active {
   font-weight: 800;
   text-transform: uppercase;
   letter-spacing: 0.04em;
-  color: var(--primary-deep);
+  color: var(--accent);
 }
 
 .inline-edit-activity {
@@ -516,8 +600,8 @@ body.dragging-active {
    TASK DIRETTE DI PROGETTO
    ========================================================================== */
 .project-direct-tasks {
-  background: rgba(248, 250, 252, 0.9);
-  border: 1px dashed rgba(30, 80, 127, 0.18);
+  background: rgba(255, 255, 255, 0.55);
+  border: 1px dashed rgba(var(--accent-rgb), 0.3);
   border-radius: var(--radius-md);
   padding: 14px;
   display: flex;
@@ -530,7 +614,7 @@ body.dragging-active {
   font-size: 0.78rem;
   font-weight: 700;
   letter-spacing: 0.05em;
-  color: var(--primary-deep);
+  color: var(--accent);
   opacity: 0.9;
 }
 
@@ -598,11 +682,17 @@ body.dragging-active {
   padding-left: 2px;
 }
 
+/* Ogni livello di priorita tinge tutta la riga, non solo il bordo sinistro.
+   La tinta e al 12%: abbastanza per riconoscere la priorita con un'occhiata
+   da lontano, abbastanza leggera perche il testo scuro resti perfettamente
+   leggibile sopra. Il bordo pieno a sinistra resta e rinforza il segnale. */
 .task-item {
+  --prio-rgb: 100, 116, 139;
+
   position: relative;
-  background: #ffffff;
-  border: 1px solid rgba(51, 65, 85, 0.08);
-  border-left: 5px solid var(--priority-waiting);
+  background: rgba(var(--prio-rgb), 0.12);
+  border: 1px solid rgba(var(--prio-rgb), 0.3);
+  border-left: 5px solid rgb(var(--prio-rgb));
   border-radius: var(--radius-sm);
   padding: 11px 14px;
   display: flex;
@@ -610,14 +700,18 @@ body.dragging-active {
   justify-content: space-between;
   gap: 12px;
   overflow: hidden;
-  transition: background 0.25s ease, opacity 0.25s ease;
+  transition: background 0.25s ease, opacity 0.25s ease, border-color 0.25s ease;
 }
 
-.task-item.priority-5 { border-left-color: var(--priority-extreme); }
-.task-item.priority-4 { border-left-color: var(--priority-high); }
-.task-item.priority-3 { border-left-color: var(--priority-medium); }
-.task-item.priority-2 { border-left-color: var(--priority-low); }
-.task-item.priority-1 { border-left-color: var(--priority-waiting); }
+.task-item:hover {
+  background: rgba(var(--prio-rgb), 0.18);
+}
+
+.task-item.priority-5 { --prio-rgb: 139, 92, 246; }   /* Estrema  - viola  */
+.task-item.priority-4 { --prio-rgb: 244, 63, 94; }    /* Alta     - rosso  */
+.task-item.priority-3 { --prio-rgb: 217, 119, 6; }    /* Media    - ambra  */
+.task-item.priority-2 { --prio-rgb: 16, 185, 129; }   /* Bassa    - verde  */
+.task-item.priority-1 { --prio-rgb: 100, 116, 139; }  /* In attesa- grigio */
 
 .task-left {
   display: flex;
@@ -637,6 +731,7 @@ body.dragging-active {
 .task-checkbox {
   appearance: none;
   -webkit-appearance: none;
+  background-color: #ffffff;
   width: 20px;
   height: 20px;
   border: 2px solid #cbd5e1;
@@ -678,9 +773,14 @@ body.dragging-active {
   min-width: 0;
 }
 
-.task-item.completed {
-  opacity: 0.75;
-  background: rgba(16, 185, 129, 0.06);
+/* Una volta spuntata la task perde la sua tinta e diventa neutra: deve
+   leggersi come "fatta", non come "ancora urgente". */
+.task-item.completed,
+.task-item.completed:hover {
+  opacity: 0.7;
+  background: rgba(148, 163, 184, 0.16);
+  border-color: rgba(148, 163, 184, 0.35);
+  border-left-color: var(--text-light);
 }
 
 .task-item.completed .task-title {
@@ -714,8 +814,8 @@ body.dragging-active {
   color: var(--text-muted);
   padding: 3px 8px;
   border-radius: 6px;
-  background: #f8fafc;
-  border: 1px solid rgba(0, 0, 0, 0.05);
+  background: rgba(255, 255, 255, 0.75);
+  border: 1px solid rgba(var(--prio-rgb), 0.35);
   cursor: pointer;
   flex-shrink: 0;
   white-space: nowrap;
@@ -723,9 +823,9 @@ body.dragging-active {
 }
 
 .task-badge-priority:hover {
-  background: var(--primary-light);
-  border-color: var(--primary-border);
-  color: var(--primary-deep);
+  background: #ffffff;
+  border-color: rgb(var(--prio-rgb));
+  color: var(--text-dark);
 }
 
 .priority-dot {

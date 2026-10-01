@@ -70,6 +70,53 @@ const FIREBASE_SDK_VERSIONS = ['12.19.0', '11.10.0', '10.14.1'];
     1: { name: 'In attesa', class: 'dot-waiting', priorityClass: 'priority-1' }
   };
 
+  /**
+   * Colori assegnabili alle schede dei progetti. Sono una tavolozza chiusa e non
+   * un selettore libero: otto tinte scelte per restare distinguibili fra loro e
+   * abbastanza scure da reggere il testo del titolo. Nei dati viene salvata la
+   * chiave ('verde'), non il codice colore, cosi un domani si puo ritoccare la
+   * tavolozza senza toccare i dati gia salvati.
+   */
+  const PROJECT_COLORS = {
+    blu:     { nome: 'Blu',          accent: '#1e507f' },
+    teal:    { nome: 'Verde acqua',  accent: '#0f766e' },
+    verde:   { nome: 'Verde',        accent: '#15803d' },
+    ambra:   { nome: 'Ambra',        accent: '#b45309' },
+    rosso:   { nome: 'Rosso',        accent: '#be123c' },
+    viola:   { nome: 'Viola',        accent: '#6d28d9' },
+    rosa:    { nome: 'Rosa',         accent: '#be185d' },
+    ardesia: { nome: 'Ardesia',      accent: '#475569' }
+  };
+  const COLORE_PREDEFINITO = 'blu';
+
+  function coloreValido(k) {
+    return Object.prototype.hasOwnProperty.call(PROJECT_COLORS, k) ? k : COLORE_PREDEFINITO;
+  }
+
+  /** '#1e507f' -> '30, 80, 127', per comporre le trasparenze in CSS. */
+  function hexToRgbList(hex) {
+    const h = String(hex).replace('#', '');
+    return [
+      parseInt(h.slice(0, 2), 16),
+      parseInt(h.slice(2, 4), 16),
+      parseInt(h.slice(4, 6), 16)
+    ].join(', ');
+  }
+
+  /** Per un progetto nuovo sceglie il colore meno usato, cosi non si ripetono. */
+  function coloreMenoUsato() {
+    const conteggio = {};
+    Object.keys(PROJECT_COLORS).forEach((k) => { conteggio[k] = 0; });
+    projectList().forEach((p) => {
+      const c = coloreValido(p.color);
+      conteggio[c] = (conteggio[c] || 0) + 1;
+    });
+    return Object.keys(PROJECT_COLORS).reduce(
+      (migliore, k) => (conteggio[k] < conteggio[migliore] ? k : migliore),
+      COLORE_PREDEFINITO
+    );
+  }
+
   /** Stato applicativo. projects è un OGGETTO indicizzato per id (non un array). */
   let state = { projects: {} };
 
@@ -160,6 +207,7 @@ const FIREBASE_SDK_VERSIONS = ['12.19.0', '11.10.0', '10.14.1'];
       const project = {
         id: p.id || pid,
         name: String(p.name || 'Senza nome'),
+        color: coloreValido(p.color),
         order: num(p.order, (pi + 1) * ORDER_STEP),
         tasks: {},
         activities: {}
@@ -211,9 +259,11 @@ const FIREBASE_SDK_VERSIONS = ['12.19.0', '11.10.0', '10.14.1'];
     const out = { projects: {} };
     (legacy.projects || []).forEach((p, pi) => {
       const pid = p.id || genId();
+      const chiaviColore = Object.keys(PROJECT_COLORS);
       const project = {
         id: pid,
         name: String(p.name || 'Senza nome'),
+        color: chiaviColore[pi % chiaviColore.length],
         order: (pi + 1) * ORDER_STEP,
         tasks: {},
         activities: {}
@@ -333,6 +383,7 @@ const FIREBASE_SDK_VERSIONS = ['12.19.0', '11.10.0', '10.14.1'];
         [pid]: {
           id: pid,
           name: 'PROGETTI ACCADEMICI & LAVORO',
+          color: COLORE_PREDEFINITO,
           order: ORDER_STEP,
           tasks: {},
           activities: {
@@ -814,6 +865,12 @@ const FIREBASE_SDK_VERSIONS = ['12.19.0', '11.10.0', '10.14.1'];
     card.className = 'project-card';
     card.dataset.projectId = project.id;
 
+    // Il colore scelto viaggia come variabile CSS: il foglio di stile lo usa
+    // per la striscia in alto, il titolo, i bordi e la velatura di fondo.
+    const coloreMeta = PROJECT_COLORS[coloreValido(project.color)];
+    card.style.setProperty('--accent', coloreMeta.accent);
+    card.style.setProperty('--accent-rgb', hexToRgbList(coloreMeta.accent));
+
     // ---- Header -------------------------------------------------------
     const header = document.createElement('div');
     header.className = 'project-header';
@@ -858,6 +915,17 @@ const FIREBASE_SDK_VERSIONS = ['12.19.0', '11.10.0', '10.14.1'];
     addTaskBtn.innerHTML = icon(ICONS.plus, 14, 2.5) + '<span>Task</span>';
     addTaskBtn.addEventListener('click', () => openAddTaskModal(project.id, null));
 
+    const colorBtn = document.createElement('button');
+    colorBtn.type = 'button';
+    colorBtn.className = 'btn-icon btn-color';
+    colorBtn.title = 'Cambia colore del progetto (' + coloreMeta.nome + ')';
+    colorBtn.setAttribute('aria-label', 'Colore del progetto ' + project.name);
+    colorBtn.innerHTML = '<span class="color-dot"></span>';
+    colorBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      apriSceltaColore(colorBtn, project);
+    });
+
     const deleteBtn = document.createElement('button');
     deleteBtn.type = 'button';
     deleteBtn.className = 'btn-icon btn-icon-danger';
@@ -867,6 +935,7 @@ const FIREBASE_SDK_VERSIONS = ['12.19.0', '11.10.0', '10.14.1'];
     deleteBtn.addEventListener('click', () => openDeleteProjectModal(project.id, project.name));
 
     actions.appendChild(addTaskBtn);
+    actions.appendChild(colorBtn);
     actions.appendChild(deleteBtn);
 
     header.appendChild(titleGroup);
@@ -1069,6 +1138,65 @@ const FIREBASE_SDK_VERSIONS = ['12.19.0', '11.10.0', '10.14.1'];
     }
 
     return el;
+  }
+
+  // ==========================================================================
+  // SCELTA DEL COLORE DI UN PROGETTO
+  // ==========================================================================
+
+  /** Riferimento alla funzione che chiude il pannellino aperto, se c'e. */
+  let chiudiSceltaColore = null;
+
+  function apriSceltaColore(bottone, project) {
+    if (chiudiSceltaColore) { chiudiSceltaColore(); return; }
+    if (renderLocked) return;
+    renderLocked = true;
+
+    const pannello = document.createElement('div');
+    pannello.className = 'color-popover';
+    pannello.setAttribute('role', 'group');
+    pannello.setAttribute('aria-label', 'Scegli un colore');
+
+    const attuale = coloreValido(project.color);
+
+    Object.keys(PROJECT_COLORS).forEach((chiave) => {
+      const meta = PROJECT_COLORS[chiave];
+      const swatch = document.createElement('button');
+      swatch.type = 'button';
+      swatch.className = 'color-swatch' + (chiave === attuale ? ' is-current' : '');
+      swatch.style.background = meta.accent;
+      swatch.title = meta.nome;
+      swatch.setAttribute('aria-label', meta.nome);
+      swatch.addEventListener('click', (e) => {
+        e.stopPropagation();
+        chiudi();
+        setProjectColor(project.id, chiave);
+      });
+      pannello.appendChild(swatch);
+    });
+
+    bottone.parentNode.appendChild(pannello);
+
+    let chiuso = false;
+    function chiudi() {
+      if (chiuso) return;
+      chiuso = true;
+      pannello.remove();
+      document.removeEventListener('click', suClickFuori, true);
+      chiudiSceltaColore = null;
+      releaseRenderLock();
+    }
+
+    function suClickFuori(e) {
+      if (!pannello.contains(e.target) && e.target !== bottone) chiudi();
+    }
+
+    chiudiSceltaColore = chiudi;
+    // Rimandato di un giro: il click che ha aperto il pannello non deve chiuderlo.
+    setTimeout(() => document.addEventListener('click', suClickFuori, true), 0);
+
+    const primo = pannello.querySelector('.color-swatch');
+    if (primo) primo.focus();
   }
 
   // ==========================================================================
@@ -1473,6 +1601,7 @@ const FIREBASE_SDK_VERSIONS = ['12.19.0', '11.10.0', '10.14.1'];
     const project = {
       id: id,
       name: clean.toUpperCase(),
+      color: coloreMenoUsato(),
       order: nextOrder(projectList()),
       tasks: {},
       activities: {}
@@ -1480,7 +1609,11 @@ const FIREBASE_SDK_VERSIONS = ['12.19.0', '11.10.0', '10.14.1'];
 
     mutate(
       () => { state.projects[id] = project; },
-      { ['projects/' + id]: { id: id, name: project.name, order: project.order } }
+      {
+        ['projects/' + id]: {
+          id: id, name: project.name, color: project.color, order: project.order
+        }
+      }
     );
   }
 
@@ -1493,6 +1626,18 @@ const FIREBASE_SDK_VERSIONS = ['12.19.0', '11.10.0', '10.14.1'];
       () => { project.name = clean; },
       { ['projects/' + projectId + '/name']: clean }
     );
+  }
+
+  function setProjectColor(projectId, colore) {
+    const project = state.projects[projectId];
+    if (!project) return;
+    const c = coloreValido(colore);
+    if (project.color === c) return;
+    mutate(
+      () => { project.color = c; },
+      { ['projects/' + projectId + '/color']: c }
+    );
+    toast('Colore del progetto aggiornato.', 'success');
   }
 
   function deleteProject(projectId) {
@@ -1871,6 +2016,7 @@ const FIREBASE_SDK_VERSIONS = ['12.19.0', '11.10.0', '10.14.1'];
     document.addEventListener('keydown', (e) => {
       if (e.key === 'Escape') {
         if (dragState.active) { cancelDrag(); return; }
+        if (chiudiSceltaColore) { chiudiSceltaColore(); return; }
         closeTopModal();
       }
     });
