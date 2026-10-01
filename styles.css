@@ -605,13 +605,9 @@ body.dragging-active {
 /* ==========================================================================
    TASK DIRETTE DI PROGETTO
    ========================================================================== */
+/* Nessun riquadro: le task dirette poggiano sul fondo della scheda. */
 .project-direct-tasks {
-  background: rgba(255, 255, 255, 0.45);
-  border: 1px dashed rgba(var(--accent-rgb), 0.3);
-  border-radius: var(--radius-md);
-  padding: 14px;
-  display: flex;
-  flex-direction: column;
+  margin-top: -4px;
 }
 
 .section-subheading {

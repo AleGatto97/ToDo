@@ -943,17 +943,14 @@ const FIREBASE_SDK_VERSIONS = ['12.19.0', '11.10.0', '10.14.1'];
     card.appendChild(header);
 
     // ---- Task dirette --------------------------------------------------
+    // Vanno direttamente sulla scheda, senza riquadro intorno: le tinte delle
+    // priorita bastano gia a staccarle dal fondo.
     const directTasks = taskList(project);
     if (directTasks.length > 0) {
-      const box = document.createElement('div');
-      box.className = 'project-direct-tasks';
-
       const list = document.createElement('div');
-      list.className = 'tasks-container';
+      list.className = 'tasks-container project-direct-tasks';
       directTasks.forEach((task) => list.appendChild(buildTask(project.id, null, task)));
-
-      box.appendChild(list);
-      card.appendChild(box);
+      card.appendChild(list);
     }
 
     // ---- Attività ------------------------------------------------------
