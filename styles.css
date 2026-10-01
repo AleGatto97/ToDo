@@ -683,16 +683,19 @@ body.dragging-active {
 }
 
 /* Ogni livello di priorita tinge tutta la riga, non solo il bordo sinistro.
-   La tinta e al 12%: abbastanza per riconoscere la priorita con un'occhiata
-   da lontano, abbastanza leggera perche il testo scuro resti perfettamente
-   leggibile sopra. Il bordo pieno a sinistra resta e rinforza il segnale. */
+   La tinta e al 38%: il colore si riconosce a colpo d'occhio anche da lontano.
+   Sopra il bianco della scheda questi colori restano comunque chiari, quindi il
+   testo quasi nero ci sta sopra con un contrasto larghissimo (misurato: mai
+   sotto 8:1, il minimo richiesto e 4.5). Il bordo pieno a sinistra e il testo
+   dell'etichetta nella versione scura della tinta completano il segnale. */
 .task-item {
   --prio-rgb: 100, 116, 139;
+  --prio-text: #334155;
 
   position: relative;
-  background: rgba(var(--prio-rgb), 0.12);
-  border: 1px solid rgba(var(--prio-rgb), 0.3);
-  border-left: 5px solid rgb(var(--prio-rgb));
+  background: rgba(var(--prio-rgb), 0.38);
+  border: 1px solid rgba(var(--prio-rgb), 0.55);
+  border-left: 6px solid rgb(var(--prio-rgb));
   border-radius: var(--radius-sm);
   padding: 11px 14px;
   display: flex;
@@ -704,14 +707,14 @@ body.dragging-active {
 }
 
 .task-item:hover {
-  background: rgba(var(--prio-rgb), 0.18);
+  background: rgba(var(--prio-rgb), 0.5);
 }
 
-.task-item.priority-5 { --prio-rgb: 139, 92, 246; }   /* Estrema  - viola  */
-.task-item.priority-4 { --prio-rgb: 244, 63, 94; }    /* Alta     - rosso  */
-.task-item.priority-3 { --prio-rgb: 217, 119, 6; }    /* Media    - ambra  */
-.task-item.priority-2 { --prio-rgb: 16, 185, 129; }   /* Bassa    - verde  */
-.task-item.priority-1 { --prio-rgb: 100, 116, 139; }  /* In attesa- grigio */
+.task-item.priority-5 { --prio-rgb: 139, 92, 246; --prio-text: #5b21b6; } /* Estrema   viola  */
+.task-item.priority-4 { --prio-rgb: 244, 63, 94;  --prio-text: #9f1239; } /* Alta      rosso  */
+.task-item.priority-3 { --prio-rgb: 245, 158, 11; --prio-text: #92400e; } /* Media     ambra  */
+.task-item.priority-2 { --prio-rgb: 16, 185, 129; --prio-text: #065f46; } /* Bassa     verde  */
+.task-item.priority-1 { --prio-rgb: 148, 163, 184; --prio-text: #334155; } /* In attesa grigio */
 
 .task-left {
   display: flex;
@@ -734,9 +737,10 @@ body.dragging-active {
   background-color: #ffffff;
   width: 20px;
   height: 20px;
-  border: 2px solid #cbd5e1;
+  border: 2px solid rgba(255, 255, 255, 0.95);
   border-radius: 6px;
   background: #ffffff;
+  box-shadow: 0 0 0 1px rgba(15, 23, 42, 0.15);
   cursor: pointer;
   outline: none;
   transition: all 0.2s ease;
@@ -777,9 +781,9 @@ body.dragging-active {
    leggersi come "fatta", non come "ancora urgente". */
 .task-item.completed,
 .task-item.completed:hover {
-  opacity: 0.7;
-  background: rgba(148, 163, 184, 0.16);
-  border-color: rgba(148, 163, 184, 0.35);
+  opacity: 0.65;
+  background: rgba(148, 163, 184, 0.22);
+  border-color: rgba(148, 163, 184, 0.45);
   border-left-color: var(--text-light);
 }
 
@@ -812,10 +816,12 @@ body.dragging-active {
   font-size: 0.78rem;
   font-weight: 600;
   color: var(--text-muted);
-  padding: 3px 8px;
+  padding: 4px 9px;
   border-radius: 6px;
-  background: rgba(255, 255, 255, 0.75);
-  border: 1px solid rgba(var(--prio-rgb), 0.35);
+  background: rgba(255, 255, 255, 0.92);
+  border: 1px solid rgba(var(--prio-rgb), 0.5);
+  color: var(--prio-text);
+  font-weight: 700;
   cursor: pointer;
   flex-shrink: 0;
   white-space: nowrap;
@@ -825,7 +831,6 @@ body.dragging-active {
 .task-badge-priority:hover {
   background: #ffffff;
   border-color: rgb(var(--prio-rgb));
-  color: var(--text-dark);
 }
 
 .priority-dot {
