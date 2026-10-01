@@ -606,7 +606,7 @@ body.dragging-active {
    TASK DIRETTE DI PROGETTO
    ========================================================================== */
 .project-direct-tasks {
-  background: rgba(255, 255, 255, 0.6);
+  background: rgba(255, 255, 255, 0.45);
   border: 1px dashed rgba(var(--accent-rgb), 0.3);
   border-radius: var(--radius-md);
   padding: 14px;
@@ -634,10 +634,13 @@ body.dragging-active {
   min-height: 4px;
 }
 
+/* Un velo di bianco sopra la scheda, non il bianco pieno: l'attivita resta
+   un gradino piu chiara del fondo del progetto senza staccarsene di netto,
+   e lascia trasparire la tinta del progetto. */
 .activity-item {
   position: relative;
-  background: #fbfbfd;
-  border: 1px solid rgba(51, 65, 85, 0.12);
+  background: rgba(255, 255, 255, 0.45);
+  border: 1px solid rgba(var(--accent-rgb), 0.25);
   border-radius: var(--radius-md);
   padding: 16px;
   display: flex;
