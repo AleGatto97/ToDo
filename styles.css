@@ -862,14 +862,18 @@ body.dragging-active {
   margin-top: auto;
 }
 
+/* Fondo trasparente: lascia vedere la velatura della scheda, cosi i due
+   pulsanti prendono esattamente il colore del progetto senza doverlo
+   ricalcolare. Restano riconoscibili come pulsanti grazie al bordo
+   tratteggiato e al testo nel colore pieno. */
 .btn-add-activity {
   font-family: var(--font-unified) !important;
   flex: 1;
   padding: 10px;
-  background: #ffffff;
-  border: 1px dashed var(--primary-border);
+  background: transparent;
+  border: 1px dashed rgba(var(--accent-rgb), 0.45);
   border-radius: var(--radius-md);
-  color: var(--primary-deep);
+  color: var(--accent);
   font-size: 0.86rem;
   font-weight: 600;
   cursor: pointer;
@@ -881,12 +885,12 @@ body.dragging-active {
 }
 
 .btn-add-activity:hover {
-  background: var(--primary-light);
-  border-color: var(--primary-deep);
+  background: rgba(var(--accent-rgb), 0.14);
+  border-color: var(--accent);
 }
 
 .btn-add-direct-task {
-  background: rgba(248, 250, 252, 0.9);
+  background: transparent;
 }
 
 .btn-add-task {
